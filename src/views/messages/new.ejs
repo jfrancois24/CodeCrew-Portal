@@ -1,0 +1,31 @@
+<%- include('../partials/header') %>
+<section class="card">
+  <h1>New message</h1>
+  <% if (course) { %><p class="muted">About <strong><%= course.title %></strong>. Parents of enrolled students are pre-selected.</p><% } %>
+  <p class="muted small">If you choose more than one person, each receives a private copy. Recipients never see each other's names or replies.</p>
+  <%- include('../partials/errors') %>
+  <% if (!contacts.length) { %>
+    <p>You do not have anyone to message yet.
+      <% if (currentUser.role === 'parent') { %>Once your child is enrolled in a course, their instructor will appear here.<% } %>
+      <% if (currentUser.role === 'instructor') { %>Parents of students in your courses will appear here.<% } %>
+    </p>
+  <% } else { %>
+  <form method="post" action="/messages" class="stack">
+    <%- include('../partials/csrf') %>
+    <% if (course) { %><input type="hidden" name="course_id" value="<%= course.id %>"><% } %>
+    <fieldset class="recipients">
+      <legend>To</legend>
+      <% contacts.forEach((c) => { %>
+        <label class="checkbox">
+          <input type="checkbox" name="recipient_ids" value="<%= c.id %>" <% if (values.recipient_ids.includes(c.id)) { %>checked<% } %>>
+          <%= fullName(c) %> <span class="muted small">· <%= c.context || roleLabel(c.role) %></span>
+        </label>
+      <% }) %>
+    </fieldset>
+    <label>Subject <input name="subject" value="<%= values.subject %>" maxlength="200" required></label>
+    <label>Message <textarea name="body" rows="8" maxlength="10000" required><%= values.body %></textarea></label>
+    <button type="submit" class="button">Send</button>
+  </form>
+  <% } %>
+</section>
+<%- include('../partials/footer') %>

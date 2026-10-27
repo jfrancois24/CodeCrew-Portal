@@ -1,0 +1,55 @@
+<%- include('../partials/header') %>
+<h1>Programs open for sign-up</h1>
+<% if (currentUser.role === 'parent' && !students.length) { %>
+  <div class="notice notice-info">Add your child first, then you can sign them up here. <a href="/children/new">Add a child</a></div>
+<% } %>
+
+<% if (!programs.length) { %>
+  <section class="card"><p>No programs are open for sign-ups right now. Check back soon!</p></section>
+<% } %>
+
+<% programs.forEach((p) => { %>
+<section class="card">
+  <h2><%= p.name %></h2>
+  <p class="muted"><% if (p.start_date) { %><%= formatDate(p.start_date) %><% if (p.end_date) { %> – <%= formatDate(p.end_date) %><% } %><% } %></p>
+  <% if (p.description) { %><p class="prewrap"><%= p.description %></p><% } %>
+
+  <% if (!p.courses.length) { %><p class="muted">Courses coming soon.</p><% } %>
+  <div class="course-list">
+  <% p.courses.forEach((c) => { const left = seatsLeft(c); %>
+    <article class="course">
+      <h3><%= c.title %></h3>
+      <% if (c.description) { %><p class="prewrap"><%= c.description %></p><% } %>
+      <dl class="facts">
+        <% if (c.schedule) { %><dt>When</dt><dd><%= c.schedule %></dd><% } %>
+        <% if (c.location) { %><dt>Where</dt><dd><%= c.location %></dd><% } %>
+        <dt>Instructor</dt><dd><%= c.instructor_first ? `${c.instructor_first} ${c.instructor_last}` : 'To be announced' %></dd>
+        <dt>Seats</dt><dd><%= left === null ? 'Open' : left === 0 ? 'Full' : `${left} left` %></dd>
+      </dl>
+      <% students.forEach((s) => {
+           const status = statuses[`${s.id}:${c.id}`];
+           const label = currentUser.role === 'student' ? '' : ` ${s.first_name}`; %>
+        <div class="signup-row">
+          <% if (status === 'active') { %>
+            <span class="tag status-open"><%= currentUser.role === 'student' ? 'You are signed up' : `${s.first_name} is signed up` %></span>
+          <% } else if (status === 'removed') { %>
+            <span class="tag">Contact CodeCrew staff to re-enroll<%= label %></span>
+          <% } else if (left === 0) { %>
+            <span class="tag">Full</span>
+          <% } else { %>
+            <form method="post" action="/enrollments">
+              <%- include('../partials/csrf') %>
+              <input type="hidden" name="course_id" value="<%= c.id %>">
+              <% if (currentUser.role === 'parent') { %><input type="hidden" name="student_id" value="<%= s.id %>"><% } %>
+              <button class="button small" type="submit">Sign up<%= label %></button>
+            </form>
+          <% } %>
+        </div>
+      <% }) %>
+      <% if (currentUser.role === 'admin') { %><a href="/courses/<%= c.id %>">Manage course</a><% } %>
+    </article>
+  <% }) %>
+  </div>
+</section>
+<% }) %>
+<%- include('../partials/footer') %>

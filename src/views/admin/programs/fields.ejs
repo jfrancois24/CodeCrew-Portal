@@ -1,0 +1,12 @@
+<label>Program name <input name="name" value="<%= values.name || '' %>" required placeholder="e.g. Spring 2027 After-School Python"></label>
+<label>Description <textarea name="description" rows="4"><%= values.description || '' %></textarea></label>
+<div class="grid-3">
+  <label>Status
+    <select name="status">
+      <% ['draft', 'open', 'closed'].forEach((s) => { %><option value="<%= s %>" <% if (values.status === s) { %>selected<% } %>><%= statusLabel(s) %></option><% }) %>
+    </select>
+    <small>Students and parents only see programs that are open.</small>
+  </label>
+  <label>Start date <input type="date" name="start_date" value="<%= values.start_date || '' %>"></label>
+  <label>End date <input type="date" name="end_date" value="<%= values.end_date || '' %>"></label>
+</div>

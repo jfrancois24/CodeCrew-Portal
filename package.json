@@ -1,0 +1,24 @@
+{
+  "name": "codecrew-portal",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CodeCrew programming portal: role-based accounts, dashboards, program sign-ups, course rosters, and parent messaging.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/server.js",
+    "dev": "node --watch --disable-warning=ExperimentalWarning src/server.js",
+    "seed": "node --disable-warning=ExperimentalWarning scripts/seed.js",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.0"
+  }
+}

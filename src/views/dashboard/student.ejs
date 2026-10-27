@@ -1,0 +1,34 @@
+<%- include('../partials/header') %>
+<h1>Hi, <%= currentUser.first_name %>!</h1>
+
+<section class="card">
+  <div class="card-head">
+    <h2>My courses</h2>
+    <a class="button" href="/programs">Find a program</a>
+  </div>
+  <% if (!courses.length) { %>
+    <p>You are not signed up for any courses yet.
+      <% if (openPrograms) { %>There <%= openPrograms === 1 ? 'is 1 program' : `are ${openPrograms} programs` %> open for sign-ups right now.<% } %>
+    </p>
+  <% } else { %>
+    <div class="course-list">
+      <% courses.forEach((c) => { %>
+        <article class="course">
+          <h3><%= c.title %></h3>
+          <p class="muted"><%= c.program_name %><% if (c.start_date) { %> · <%= formatDate(c.start_date) %><% if (c.end_date) { %> – <%= formatDate(c.end_date) %><% } %><% } %></p>
+          <dl class="facts">
+            <% if (c.schedule) { %><dt>When</dt><dd><%= c.schedule %></dd><% } %>
+            <% if (c.location) { %><dt>Where</dt><dd><%= c.location %></dd><% } %>
+            <dt>Instructor</dt><dd><%= c.instructor_first ? `${c.instructor_first} ${c.instructor_last}` : 'To be announced' %></dd>
+          </dl>
+          <form method="post" action="/enrollments/drop" data-confirm="Drop <%= c.title %>? You may lose your seat if the course fills up.">
+            <%- include('../partials/csrf') %>
+            <input type="hidden" name="course_id" value="<%= c.id %>">
+            <button class="link-button danger" type="submit">Drop this course</button>
+          </form>
+        </article>
+      <% }) %>
+    </div>
+  <% } %>
+</section>
+<%- include('../partials/footer') %>

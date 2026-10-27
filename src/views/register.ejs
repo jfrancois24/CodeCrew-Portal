@@ -1,0 +1,14 @@
+<%- include('partials/header') %>
+<section class="card narrow">
+  <h1>Create an account</h1>
+  <p class="muted">Parents and guardians can create their own account and then add each child from their dashboard.
+    Students can also sign up on their own. Instructor accounts are set up by CodeCrew staff.</p>
+  <%- include('partials/errors') %>
+  <form method="post" action="/register" class="stack">
+    <%- include('partials/csrf') %>
+    <%- include('partials/user-fields', { roleChoices: ['parent', 'student'], passwordLabel: 'Password', passwordRequired: true, confirmPassword: true }) %>
+    <button type="submit" class="button">Create account</button>
+  </form>
+  <p>Already have an account? <a href="/login">Sign in</a>.</p>
+</section>
+<%- include('partials/footer') %>

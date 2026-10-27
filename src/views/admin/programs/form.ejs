@@ -1,0 +1,12 @@
+<%- include('../../partials/header') %>
+<p class="breadcrumb"><a href="/admin/programs">Programs</a></p>
+<section class="card">
+  <h1>New program</h1>
+  <%- include('../../partials/errors') %>
+  <form method="post" action="/admin/programs" class="stack">
+    <%- include('../../partials/csrf') %>
+    <%- include('fields') %>
+    <button type="submit" class="button">Create program</button>
+  </form>
+</section>
+<%- include('../../partials/footer') %>

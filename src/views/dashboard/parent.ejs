@@ -1,0 +1,56 @@
+<%- include('../partials/header') %>
+<h1>Welcome, <%= currentUser.first_name %></h1>
+
+<div class="actions-row">
+  <a class="button" href="/children/new">Add a child</a>
+  <a class="button secondary" href="/programs">Browse programs</a>
+  <a class="button secondary" href="/messages">Messages<% if (unreadCount) { %> (<%= unreadCount %> new)<% } %></a>
+</div>
+
+<% if (!children.length) { %>
+  <section class="card">
+    <h2>Get started</h2>
+    <p>Add each of your children to create their student login. Then you can sign them up for programs and message their instructors.</p>
+    <p class="muted small">If your child already has a CodeCrew account, contact CodeCrew staff and we will link it to yours.</p>
+  </section>
+<% } %>
+
+<% children.forEach((child) => { %>
+  <section class="card">
+    <div class="card-head">
+      <h2><%= fullName(child) %></h2>
+      <span class="muted">Username: <strong><%= child.username %></strong><% if (child.grade_level) { %> · Grade <%= child.grade_level %><% } %><% if (!child.active) { %> · <span class="tag">Account turned off</span><% } %></span>
+    </div>
+    <% if (!child.courses.length) { %>
+      <p>Not signed up for any courses yet. <a href="/programs">See open programs</a>.</p>
+    <% } else { %>
+      <table>
+        <thead><tr><th>Course</th><th>Program</th><th>When / where</th><th>Instructor</th><th></th></tr></thead>
+        <tbody>
+        <% child.courses.forEach((c) => { %>
+          <tr>
+            <td><%= c.title %></td>
+            <td><%= c.program_name %></td>
+            <td><%= c.schedule || '' %><% if (c.location) { %><br><span class="muted"><%= c.location %></span><% } %></td>
+            <td>
+              <% if (c.instructor_id) { %>
+                <%= c.instructor_first %> <%= c.instructor_last %><br>
+                <a href="/messages/new?to=<%= c.instructor_id %>">Message</a>
+              <% } else { %>To be announced<% } %>
+            </td>
+            <td>
+              <form method="post" action="/enrollments/drop" data-confirm="Drop <%= child.first_name %> from <%= c.title %>?">
+                <%- include('../partials/csrf') %>
+                <input type="hidden" name="course_id" value="<%= c.id %>">
+                <input type="hidden" name="student_id" value="<%= child.id %>">
+                <button class="link-button danger" type="submit">Drop</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </section>
+<% }) %>
+<%- include('../partials/footer') %>

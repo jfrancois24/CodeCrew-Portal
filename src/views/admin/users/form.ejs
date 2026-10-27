@@ -1,0 +1,78 @@
+<%- include('../../partials/header') %>
+<p class="breadcrumb"><a href="/admin/users">Users</a></p>
+<h1><%= editing ? `${editing.first_name} ${editing.last_name}` : 'Add user' %></h1>
+
+<section class="card">
+  <%- include('../../partials/errors') %>
+  <form method="post" action="<%= editing ? `/admin/users/${editing.id}` : '/admin/users' %>" class="stack">
+    <%- include('../../partials/csrf') %>
+    <%- include('../../partials/user-fields', {
+          roleChoices: Object.keys(ROLE_LABELS),
+          passwordLabel: editing ? 'Reset password (leave blank to keep)' : 'Temporary password',
+          passwordRequired: !editing, confirmPassword: false }) %>
+    <% if (editing) { %>
+      <label class="checkbox"><input type="checkbox" name="active" value="1" <% if (values.active) { %>checked<% } %>> Account is active (unchecked = can't sign in)</label>
+      <p class="muted small">Changing someone's role clears their family links, course assignments, and active enrollments.</p>
+    <% } %>
+    <button type="submit" class="button"><%= editing ? 'Save user' : 'Create user' %></button>
+  </form>
+</section>
+
+<% if (editing && editing.role === 'student') { %>
+<section class="card">
+  <h2>Parents / guardians</h2>
+  <% if (!parents.length) { %><p class="muted">No parent or guardian linked.</p><% } %>
+  <ul class="plain">
+  <% parents.forEach((p) => { %>
+    <li><a href="/admin/users/<%= p.id %>"><%= fullName(p) %></a> <span class="muted small"><%= p.email || '' %></span>
+      <form method="post" action="/admin/users/<%= editing.id %>/links/<%= p.id %>/delete" class="inline">
+        <%- include('../../partials/csrf') %><button class="link-button danger" type="submit">Unlink</button>
+      </form>
+    </li>
+  <% }) %>
+  </ul>
+  <%- include('link-form', { label: 'Link a parent' }) %>
+</section>
+<section class="card">
+  <h2>Current courses</h2>
+  <% if (!enrollments.length) { %><p class="muted">Not enrolled in any courses.</p><% } %>
+  <ul class="plain"><% enrollments.forEach((c) => { %><li><a href="/courses/<%= c.id %>"><%= c.title %></a> <span class="muted small"><%= c.program_name %></span></li><% }) %></ul>
+</section>
+<% } %>
+
+<% if (editing && editing.role === 'parent') { %>
+<section class="card">
+  <h2>Children</h2>
+  <% if (!children.length) { %><p class="muted">No children linked.</p><% } %>
+  <ul class="plain">
+  <% children.forEach((c) => { %>
+    <li><a href="/admin/users/<%= c.id %>"><%= fullName(c) %></a> <span class="muted small"><%= c.username %></span>
+      <form method="post" action="/admin/users/<%= editing.id %>/links/<%= c.id %>/delete" class="inline">
+        <%- include('../../partials/csrf') %><button class="link-button danger" type="submit">Unlink</button>
+      </form>
+    </li>
+  <% }) %>
+  </ul>
+  <%- include('link-form', { label: 'Link a student' }) %>
+</section>
+<% } %>
+
+<% if (editing && editing.role === 'instructor') { %>
+<section class="card">
+  <h2>Assigned courses</h2>
+  <% if (!courses.length) { %><p class="muted">No courses assigned. Assign instructors from a course's edit form.</p><% } %>
+  <ul class="plain"><% courses.forEach((c) => { %><li><a href="/courses/<%= c.id %>"><%= c.title %></a> <span class="muted small"><%= c.program_name %></span></li><% }) %></ul>
+</section>
+<% } %>
+
+<% if (editing && editing.id !== currentUser.id) { %>
+<section class="card danger-zone">
+  <h2>Delete user</h2>
+  <p>Deleting permanently removes this account, its family links, enrollments, and messages. To keep records, turn the account off instead.</p>
+  <form method="post" action="/admin/users/<%= editing.id %>/delete" data-confirm="Permanently delete <%= editing.first_name %> <%= editing.last_name %>? This cannot be undone.">
+    <%- include('../../partials/csrf') %>
+    <button class="button danger" type="submit">Delete user</button>
+  </form>
+</section>
+<% } %>
+<%- include('../../partials/footer') %>
