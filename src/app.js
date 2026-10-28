@@ -20,6 +20,11 @@ function createApp({ db, sessionSecret = process.env.SESSION_SECRET, production 
   Object.assign(app.locals, helpers);
 
   app.use(securityHeaders);
+  // Uptime check for the host. Registered before sessions so checks don't create session rows.
+  app.get('/healthz', (req, res) => {
+    db.prepare('SELECT 1').get();
+    res.type('text').send('ok');
+  });
   app.use(express.static(path.join(__dirname, '..', 'public')));
   app.use(express.urlencoded({ extended: false }));
   app.use(

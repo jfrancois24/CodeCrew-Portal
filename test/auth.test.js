@@ -93,3 +93,12 @@ test('users can change their own password', async () => {
   assert.equal(res.status, 302);
   await signIn(app, 'pjohnson', 'brand-new-pass');
 });
+
+test('health check answers without creating a session', async () => {
+  const { app, db } = setup();
+  const res = await request(app).get('/healthz');
+  assert.equal(res.status, 200);
+  assert.equal(res.text, 'ok');
+  assert.equal(res.headers['set-cookie'], undefined);
+  assert.equal(db.prepare('SELECT COUNT(*) AS n FROM sessions').get().n, 0);
+});
