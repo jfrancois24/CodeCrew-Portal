@@ -6,8 +6,10 @@ services:
     runtime: node
     # Starter is the smallest paid plan; free instances can't have a persistent disk.
     plan: starter
-    # US region. This can't be changed after the service is created.
-    region: oregon
+    # Ohio is Render's closest region to Memphis. This can't be changed after the service is created.
+    region: ohio
+    # Only reviewed changes merged into main go live.
+    branch: main
     buildCommand: npm ci --omit=dev
     startCommand: npm start
     healthCheckPath: /healthz

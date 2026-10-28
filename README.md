@@ -44,9 +44,9 @@ It prompts for a password.
 
 ## Deploying to Render
 
-`render.yaml` describes the whole setup: a Starter web service in a US region, a 1 GB persistent disk at `/var/data` for the database, `NODE_ENV=production`, and a randomly generated `SESSION_SECRET`. Render redeploys automatically whenever the deployed branch changes.
+`render.yaml` describes the whole setup: a Starter web service in Render's Ohio region, a 1 GB persistent disk at `/var/data` for the database, `NODE_ENV=production`, and a randomly generated `SESSION_SECRET`. Render redeploys automatically whenever the deployed branch changes.
 
-1. **Pick the branch to deploy.** Render deploys from one branch. We recommend merging this work into `main` and deploying from `main`, so that only reviewed changes go live.
+1. **Deploy from `main`.** `render.yaml` tells Render to deploy only the `main` branch, so changes go live only after they are merged there.
 2. **Create the service.** In the Render dashboard choose **New → Blueprint**, connect GitHub if asked, select this repository and branch, review the resources it lists, and click **Apply**. The Starter plan and disk need a payment method on the account.
 3. **Wait for the first deploy** (a few minutes). Render shows the site's address, ending in `.onrender.com`. Visiting `/healthz` on that address should show `ok`.
 4. **Create the first admin.** Open the service in Render, go to the **Shell** tab, and run:
@@ -60,7 +60,7 @@ Things to know:
 
 - **Updates cause about a minute of downtime.** A service with a disk runs as a single copy, so each deploy briefly restarts it. Merge changes outside program hours.
 - **Backups.** Render snapshots disks automatically; confirm the current schedule and how to restore one in Render's disk documentation before real data goes in. Never run `npm run seed` on the live site.
-- **The region can't be changed later.** `render.yaml` uses `oregon` (US West). If most users are on the East Coast, change it to `virginia` or `ohio` *before* the first deploy.
+- **The region can't be changed later.** `render.yaml` uses `ohio`, Render's closest region to Memphis.
 
 ## How it works
 
