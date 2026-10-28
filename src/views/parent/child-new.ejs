@@ -1,0 +1,13 @@
+<%- include('../partials/header') %>
+<section class="card narrow">
+  <h1>Add a child</h1>
+  <p class="muted">This creates your child's student login and links it to your account. Your child does not need an email address;
+    they will sign in with the username and password you choose here.</p>
+  <%- include('../partials/errors') %>
+  <form method="post" action="/children" class="stack">
+    <%- include('../partials/csrf') %>
+    <%- include('../partials/user-fields', { values: { ...values, role: 'student' }, roleChoices: null, passwordLabel: "Child's password", passwordRequired: true, confirmPassword: true }) %>
+    <button type="submit" class="button">Create student account</button>
+  </form>
+</section>
+<%- include('../partials/footer') %>

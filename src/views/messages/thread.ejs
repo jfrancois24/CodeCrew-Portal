@@ -1,0 +1,27 @@
+<%- include('../partials/header') %>
+<p class="breadcrumb"><a href="/messages">Messages</a></p>
+<h1><%= root.subject %></h1>
+<p class="muted">Conversation with <strong><%= other.first_name %> <%= other.last_name %></strong> (<%= roleLabel(other.role) %>)<% if (course) { %> · <%= course.title %><% } %></p>
+
+<section class="thread">
+  <% messages.forEach((m) => { %>
+    <article class="message <%= m.sender_id === currentUser.id ? 'mine' : '' %>">
+      <header><strong><%= m.sender_id === currentUser.id ? 'You' : `${m.sender_first} ${m.sender_last}` %></strong>
+        <span class="muted small"><%= formatDateTime(m.created_at) %></span></header>
+      <p class="prewrap"><%= m.body %></p>
+    </article>
+  <% }) %>
+</section>
+
+<section class="card">
+  <% if (other.active) { %>
+  <form method="post" action="/messages/<%= root.id %>/reply" class="stack">
+    <%- include('../partials/csrf') %>
+    <label>Reply <textarea name="body" rows="5" maxlength="10000" required></textarea></label>
+    <button type="submit" class="button">Send reply</button>
+  </form>
+  <% } else { %>
+    <p class="muted">This person no longer has an active account, so replies are turned off.</p>
+  <% } %>
+</section>
+<%- include('../partials/footer') %>

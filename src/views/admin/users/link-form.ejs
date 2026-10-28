@@ -1,0 +1,12 @@
+<% if (linkOptions.length) { %>
+<form method="post" action="/admin/users/<%= editing.id %>/links" class="inline-form">
+  <%- include('../../partials/csrf') %>
+  <label><%= label %>
+    <select name="other_id" required>
+      <option value="">Choose…</option>
+      <% linkOptions.forEach((o) => { %><option value="<%= o.id %>"><%= o.last_name %>, <%= o.first_name %> (<%= o.username %>)</option><% }) %>
+    </select>
+  </label>
+  <button class="button small" type="submit">Link</button>
+</form>
+<% } %>

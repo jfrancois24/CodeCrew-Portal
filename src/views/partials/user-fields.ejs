@@ -1,0 +1,47 @@
+<%#
+  Shared account fields. Expects: values, roleChoices (array of roles, or null to hide the role picker),
+  passwordLabel (string), passwordRequired (boolean), confirmPassword (boolean).
+%>
+<% if (roleChoices) { %>
+<fieldset class="role-picker">
+  <legend>Account type</legend>
+  <% roleChoices.forEach((r) => { %>
+    <label class="radio">
+      <input type="radio" name="role" value="<%= r %>" <% if (values.role === r) { %>checked<% } %> required>
+      <%= roleLabel(r) %>
+    </label>
+  <% }) %>
+</fieldset>
+<% } %>
+<div class="grid-2">
+  <label>First name <input name="first_name" value="<%= values.first_name || '' %>" required autocomplete="given-name"></label>
+  <label>Last name <input name="last_name" value="<%= values.last_name || '' %>" required autocomplete="family-name"></label>
+</div>
+<div class="grid-2">
+  <label>Username <input name="username" value="<%= values.username || '' %>" required autocomplete="username" pattern="[a-zA-Z0-9._\-]{3,40}">
+    <small>Used to sign in. Letters, numbers, dots, dashes, underscores.</small>
+  </label>
+  <label>Email <input type="email" name="email" value="<%= values.email || '' %>" autocomplete="email">
+    <small>Optional for students. Required for parents, instructors, and admins.</small>
+  </label>
+</div>
+<div class="grid-2 student-only">
+  <label>Grade level <small>(students)</small>
+    <select name="grade_level">
+      <option value="">—</option>
+      <% ['K','1','2','3','4','5','6','7','8','9','10','11','12','Post-secondary'].forEach((g) => { %>
+        <option value="<%= g %>" <% if (values.grade_level === g) { %>selected<% } %>><%= g %></option>
+      <% }) %>
+    </select>
+  </label>
+  <label>School <small>(students)</small> <input name="school" value="<%= values.school || '' %>"></label>
+</div>
+<label>Phone <small>(optional)</small> <input type="tel" name="phone" value="<%= values.phone || '' %>" autocomplete="tel"></label>
+<div class="grid-2">
+  <label><%= passwordLabel %> <input type="password" name="password" autocomplete="new-password" minlength="8" <% if (passwordRequired) { %>required<% } %>>
+    <small>At least 8 characters.</small>
+  </label>
+  <% if (confirmPassword) { %>
+  <label>Confirm password <input type="password" name="password_confirm" autocomplete="new-password" minlength="8" required></label>
+  <% } %>
+</div>

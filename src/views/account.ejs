@@ -1,0 +1,25 @@
+<%- include('partials/header') %>
+<section class="card narrow">
+  <h1>My account</h1>
+  <p class="muted">Signed in as <strong><%= currentUser.username %></strong> · <%= roleLabel(currentUser.role) %></p>
+  <%- include('partials/errors') %>
+  <form method="post" action="/account" class="stack">
+    <%- include('partials/csrf') %>
+    <div class="grid-2">
+      <label>First name <input name="first_name" value="<%= values.first_name %>" required></label>
+      <label>Last name <input name="last_name" value="<%= values.last_name %>" required></label>
+    </div>
+    <label>Email <input type="email" name="email" value="<%= values.email || '' %>" <% if (currentUser.role !== 'student') { %>required<% } %>></label>
+    <label>Phone <input type="tel" name="phone" value="<%= values.phone || '' %>"></label>
+    <fieldset>
+      <legend>Change password <small>(leave blank to keep your current password)</small></legend>
+      <label>Current password <input type="password" name="current_password" autocomplete="current-password"></label>
+      <div class="grid-2">
+        <label>New password <input type="password" name="new_password" minlength="8" autocomplete="new-password"></label>
+        <label>Confirm new password <input type="password" name="new_password_confirm" minlength="8" autocomplete="new-password"></label>
+      </div>
+    </fieldset>
+    <button type="submit" class="button">Save changes</button>
+  </form>
+</section>
+<%- include('partials/footer') %>

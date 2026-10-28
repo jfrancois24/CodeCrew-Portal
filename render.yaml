@@ -1,0 +1,31 @@
+# Render Blueprint for the CodeCrew Portal.
+# In Render: New > Blueprint, pick this repository, and Render creates everything below.
+services:
+  - type: web
+    name: codecrew-portal
+    runtime: node
+    # Starter is the smallest paid plan; free instances can't have a persistent disk.
+    plan: starter
+    # Ohio is Render's closest region to Memphis. This can't be changed after the service is created.
+    region: ohio
+    # Only reviewed changes merged into main go live.
+    branch: main
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true
+    # The SQLite database lives on this disk so it survives deploys and restarts.
+    disk:
+      name: portal-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_FILE
+        value: /var/data/portal.db
+      # Render generates a random secret once and keeps it across deploys.
+      - key: SESSION_SECRET
+        generateValue: true

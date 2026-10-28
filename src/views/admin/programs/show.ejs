@@ -1,0 +1,69 @@
+<%- include('../../partials/header') %>
+<p class="breadcrumb"><a href="/admin/programs">Programs</a></p>
+<div class="card-head">
+  <h1><%= program.name %></h1>
+  <span class="tag status-<%= program.status %>"><%= statusLabel(program.status) %></span>
+</div>
+
+<section class="card">
+  <h2>Courses</h2>
+  <% if (!courses.length) { %><p class="muted">No courses yet. Add one below.</p><% } else { %>
+  <table>
+    <thead><tr><th>Course</th><th>Instructor</th><th>Schedule</th><th>Enrolled</th></tr></thead>
+    <tbody>
+    <% courses.forEach((c) => { %>
+      <tr>
+        <td><a href="/courses/<%= c.id %>"><%= c.title %></a></td>
+        <td><%= c.instructor_first ? `${c.instructor_first} ${c.instructor_last}` : '' %><% if (!c.instructor_id) { %><span class="tag">Unassigned</span><% } %></td>
+        <td><%= c.schedule || '' %></td>
+        <td><%= c.enrolled_count %><% if (c.capacity) { %> / <%= c.capacity %><% } %></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+  <% } %>
+</section>
+
+<section class="card">
+  <h2>Add a course</h2>
+  <%- include('../../partials/errors', { errors: courseErrors }) %>
+  <form method="post" action="/admin/programs/<%= program.id %>/courses" class="stack">
+    <%- include('../../partials/csrf') %>
+    <label>Title <input name="title" value="<%= courseValues.title || '' %>" required placeholder="e.g. Intro to Python (Grades 6–8)"></label>
+    <label>Description <textarea name="description" rows="3"><%= courseValues.description || '' %></textarea></label>
+    <div class="grid-2">
+      <label>Schedule <input name="schedule" value="<%= courseValues.schedule || '' %>"></label>
+      <label>Location <input name="location" value="<%= courseValues.location || '' %>"></label>
+    </div>
+    <div class="grid-2">
+      <label>Instructor
+        <select name="instructor_id">
+          <option value="">Unassigned</option>
+          <% instructors.forEach((i) => { %><option value="<%= i.id %>" <% if (i.id === courseValues.instructor_id) { %>selected<% } %>><%= fullName(i) %></option><% }) %>
+        </select>
+      </label>
+      <label>Capacity <input type="number" name="capacity" min="1" value="<%= courseValues.capacity || '' %>" placeholder="No limit"></label>
+    </div>
+    <button type="submit" class="button">Add course</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Program details</h2>
+  <%- include('../../partials/errors') %>
+  <form method="post" action="/admin/programs/<%= program.id %>" class="stack">
+    <%- include('../../partials/csrf') %>
+    <%- include('fields') %>
+    <button type="submit" class="button">Save program</button>
+  </form>
+</section>
+
+<section class="card danger-zone">
+  <h2>Delete program</h2>
+  <p>Deleting removes this program, all of its courses, and their enrollment history. To stop sign-ups but keep records, set the status to Closed instead.</p>
+  <form method="post" action="/admin/programs/<%= program.id %>/delete" data-confirm="Permanently delete <%= program.name %> and all of its courses?">
+    <%- include('../../partials/csrf') %>
+    <button class="button danger" type="submit">Delete program</button>
+  </form>
+</section>
+<%- include('../../partials/footer') %>

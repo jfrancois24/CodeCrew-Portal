@@ -1,0 +1,25 @@
+<%- include('../partials/header') %>
+<div class="card-head">
+  <h1>Messages</h1>
+  <a class="button" href="/messages/new">New message</a>
+</div>
+<section class="card">
+  <% if (!threads.length) { %>
+    <p>No conversations yet.</p>
+  <% } else { %>
+  <table class="threads">
+    <thead><tr><th>With</th><th>Subject</th><th>Course</th><th>Last message</th></tr></thead>
+    <tbody>
+    <% threads.forEach((t) => { %>
+      <tr class="<%= t.unread ? 'unread' : '' %>">
+        <td><%= t.other_first %> <%= t.other_last %><br><span class="muted small"><%= roleLabel(t.other_role) %></span></td>
+        <td><a href="/messages/<%= t.thread_id %>"><%= t.subject %></a><% if (t.unread) { %> <span class="count"><%= t.unread %> new</span><% } %></td>
+        <td><%= t.course_title || '' %></td>
+        <td class="muted"><%= formatDateTime(t.last_at) %></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+  <% } %>
+</section>
+<%- include('../partials/footer') %>

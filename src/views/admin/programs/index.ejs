@@ -1,0 +1,24 @@
+<%- include('../../partials/header') %>
+<div class="card-head">
+  <h1>Programs</h1>
+  <a class="button" href="/admin/programs/new">New program</a>
+</div>
+<section class="card">
+  <% if (!programs.length) { %><p>No programs yet. Create one to start adding courses.</p><% } else { %>
+  <table>
+    <thead><tr><th>Program</th><th>Status</th><th>Dates</th><th>Courses</th><th>Enrolled</th></tr></thead>
+    <tbody>
+    <% programs.forEach((p) => { %>
+      <tr>
+        <td><a href="/admin/programs/<%= p.id %>"><%= p.name %></a></td>
+        <td><span class="tag status-<%= p.status %>"><%= statusLabel(p.status) %></span></td>
+        <td><%= formatDate(p.start_date) %><% if (p.end_date) { %> – <%= formatDate(p.end_date) %><% } %></td>
+        <td><%= p.course_count %></td>
+        <td><%= p.enrolled_count %></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+  <% } %>
+</section>
+<%- include('../../partials/footer') %>

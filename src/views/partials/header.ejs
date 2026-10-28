@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> · CodeCrew Portal</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="/">CodeCrew <span>Portal</span></a>
+    <% if (currentUser) {
+         const links = [['/dashboard', 'Dashboard']];
+         if (currentUser.role === 'student' || currentUser.role === 'parent') links.push(['/programs', 'Programs']);
+         if (currentUser.role === 'admin') links.push(['/admin/users', 'Users'], ['/admin/programs', 'Programs']);
+         if (currentUser.role !== 'student') links.push(['/messages', 'Messages']);
+    %>
+    <nav class="main-nav" aria-label="Main">
+      <% links.forEach(([href, label]) => { %>
+        <a href="<%= href %>" <% if (path.startsWith(href)) { %>aria-current="page"<% } %>>
+          <%= label %><% if (href === '/messages' && unreadCount) { %> <span class="count"><%= unreadCount %></span><% } %>
+        </a>
+      <% }) %>
+    </nav>
+    <div class="user-menu">
+      <a href="/account"><%= fullName(currentUser) %></a>
+      <span class="role-badge role-<%= currentUser.role %>"><%= roleLabel(currentUser.role) %></span>
+      <form method="post" action="/logout">
+        <%- include('csrf') %>
+        <button class="link-button" type="submit">Sign out</button>
+      </form>
+    </div>
+    <% } %>
+  </div>
+</header>
+<main id="main" class="wrap">
+<% flash.forEach((f) => { %>
+  <div class="notice notice-<%= f.type %>" role="status"><%= f.message %></div>
+<% }) %>

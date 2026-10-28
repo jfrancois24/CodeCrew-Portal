@@ -1,0 +1,57 @@
+<%- include('../partials/header') %>
+<h1>Admin dashboard</h1>
+
+<div class="stats">
+  <a class="stat" href="/admin/users?role=student"><span class="stat-value"><%= stats.roleCounts.student || 0 %></span><span class="stat-label">Active students</span></a>
+  <a class="stat" href="/admin/users?role=parent"><span class="stat-value"><%= stats.roleCounts.parent || 0 %></span><span class="stat-label">Active parents</span></a>
+  <a class="stat" href="/admin/users?role=instructor"><span class="stat-value"><%= stats.roleCounts.instructor || 0 %></span><span class="stat-label">Active instructors</span></a>
+  <a class="stat" href="/admin/programs"><span class="stat-value"><%= stats.openPrograms %> / <%= stats.programs %></span><span class="stat-label">Programs open</span></a>
+  <div class="stat"><span class="stat-value"><%= stats.courses %></span><span class="stat-label">Courses</span></div>
+  <div class="stat"><span class="stat-value"><%= stats.activeEnrollments %></span><span class="stat-label">Active enrollments</span></div>
+</div>
+
+<% if (stats.unassignedCourses || stats.unlinkedStudents) { %>
+<section class="card attention">
+  <h2>Needs attention</h2>
+  <ul>
+    <% if (stats.unassignedCourses) { %><li><%= stats.unassignedCourses %> course<%= stats.unassignedCourses === 1 ? ' has' : 's have' %> no instructor assigned. <a href="/admin/programs">Review programs</a></li><% } %>
+    <% if (stats.unlinkedStudents) { %><li><%= stats.unlinkedStudents %> active student<%= stats.unlinkedStudents === 1 ? ' is' : 's are' %> not linked to a parent or guardian. <a href="/admin/users?role=student">Review students</a></li><% } %>
+  </ul>
+</section>
+<% } %>
+
+<div class="actions-row">
+  <a class="button" href="/admin/users/new">Add user</a>
+  <a class="button" href="/admin/programs/new">New program</a>
+  <a class="button secondary" href="/messages">Messages<% if (unreadCount) { %> (<%= unreadCount %> new)<% } %></a>
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <h2>Newest accounts</h2>
+    <table>
+      <tbody>
+      <% recentUsers.forEach((u) => { %>
+        <tr><td><a href="/admin/users/<%= u.id %>"><%= fullName(u) %></a></td><td><%= roleLabel(u.role) %></td><td class="muted"><%= formatDate(u.created_at) %></td></tr>
+      <% }) %>
+      </tbody>
+    </table>
+  </section>
+  <section class="card">
+    <h2>Recent removals by instructors</h2>
+    <% if (!recentRemovals.length) { %><p class="muted">None.</p><% } else { %>
+    <table>
+      <tbody>
+      <% recentRemovals.forEach((r) => { %>
+        <tr>
+          <td><%= r.first_name %> <%= r.last_name %></td>
+          <td><a href="/courses/<%= r.course_id %>"><%= r.title %></a><% if (r.end_reason) { %><br><span class="muted small"><%= r.end_reason %></span><% } %></td>
+          <td class="muted"><%= formatDate(r.ended_at) %></td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table>
+    <% } %>
+  </section>
+</div>
+<%- include('../partials/footer') %>

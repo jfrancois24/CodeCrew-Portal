@@ -1,0 +1,121 @@
+<%- include('../partials/header') %>
+<p class="breadcrumb">
+  <% if (admin) { %><a href="/admin/programs/<%= course.program_id %>"><%= course.program_name %></a><% } else { %><a href="/dashboard">My courses</a> · <%= course.program_name %><% } %>
+</p>
+<div class="card-head">
+  <h1><%= course.title %></h1>
+  <a class="button secondary" href="/messages/new?course=<%= course.id %>">Message all parents</a>
+</div>
+<p class="muted">
+  <%= course.schedule || 'Schedule not set' %> · <%= course.location || 'Location not set' %> ·
+  <%= course.enrolled_count %> enrolled<% if (course.capacity) { %> of <%= course.capacity %> seats<% } %>
+</p>
+
+<section class="card">
+  <h2>Roster</h2>
+  <% if (!roster.length) { %><p>No students are enrolled yet.</p><% } else { %>
+  <table>
+    <thead><tr><th>Student</th><th>Grade / school</th><th>Parents / guardians</th><th>Enrolled</th><th>Remove</th></tr></thead>
+    <tbody>
+    <% roster.forEach((s) => { %>
+      <tr>
+        <td><%= s.first_name %> <%= s.last_name %><br><span class="muted small"><%= s.username %></span></td>
+        <td><%= s.grade_level ? `Grade ${s.grade_level}` : '' %><% if (s.school) { %><br><span class="muted small"><%= s.school %></span><% } %></td>
+        <td>
+          <% if (!s.parents.length) { %><span class="muted">None linked</span><% } %>
+          <% s.parents.forEach((p) => { %>
+            <div><%= fullName(p) %><% if (p.active) { %> · <a href="/messages/new?to=<%= p.id %>">Message</a><% } %></div>
+          <% }) %>
+        </td>
+        <td class="muted"><%= formatDate(s.enrolled_at) %></td>
+        <td>
+          <form method="post" action="/courses/<%= course.id %>/remove-student" class="inline-form"
+                data-confirm="Remove <%= s.first_name %> <%= s.last_name %> from <%= course.title %>? They will not be able to re-enroll on their own.">
+            <%- include('../partials/csrf') %>
+            <input type="hidden" name="student_id" value="<%= s.id %>">
+            <input name="reason" placeholder="Reason (optional)" aria-label="Reason for removing <%= s.first_name %>" maxlength="300">
+            <button class="button small danger" type="submit">Remove</button>
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+  <% } %>
+
+  <% if (admin) { %>
+  <form method="post" action="/courses/<%= course.id %>/add-student" class="inline-form add-student">
+    <%- include('../partials/csrf') %>
+    <label>Add a student
+      <select name="student_id" required>
+        <option value="">Choose a student…</option>
+        <% addableStudents.forEach((s) => { %><option value="<%= s.id %>"><%= s.last_name %>, <%= s.first_name %> (<%= s.username %>)</option><% }) %>
+      </select>
+    </label>
+    <button class="button small" type="submit">Add to course</button>
+    <p class="muted small">Admins can add students even when the course is full or the program is closed.</p>
+  </form>
+  <% } %>
+</section>
+
+<% if (past.length) { %>
+<section class="card">
+  <h2>Past students</h2>
+  <table>
+    <thead><tr><th>Student</th><th>Status</th><th>Date</th><th>Reason</th></tr></thead>
+    <tbody>
+    <% past.forEach((s) => { %>
+      <tr>
+        <td><%= s.first_name %> <%= s.last_name %></td>
+        <td><%= s.status === 'removed' ? 'Removed' : 'Dropped' %></td>
+        <td class="muted"><%= formatDate(s.ended_at) %></td>
+        <td><%= s.end_reason || '' %></td>
+      </tr>
+    <% }) %>
+    </tbody>
+  </table>
+</section>
+<% } %>
+
+<section class="card">
+  <h2>Edit course</h2>
+  <%- include('../partials/errors') %>
+  <form method="post" action="/courses/<%= course.id %>" class="stack">
+    <%- include('../partials/csrf') %>
+    <label>Title <input name="title" value="<%= values.title %>" required></label>
+    <label>Description <textarea name="description" rows="4"><%= values.description || '' %></textarea></label>
+    <div class="grid-2">
+      <label>Schedule <input name="schedule" value="<%= values.schedule || '' %>" placeholder="e.g. Tuesdays & Thursdays, 3:30–5:00 PM"></label>
+      <label>Location <input name="location" value="<%= values.location || '' %>" placeholder="e.g. Room 204 or Zoom"></label>
+    </div>
+    <% if (admin) { %>
+    <div class="grid-3">
+      <label>Program
+        <select name="program_id" required>
+          <% programs.forEach((p) => { %><option value="<%= p.id %>" <% if (p.id === values.program_id) { %>selected<% } %>><%= p.name %></option><% }) %>
+        </select>
+      </label>
+      <label>Instructor
+        <select name="instructor_id">
+          <option value="">Unassigned</option>
+          <% instructors.forEach((i) => { %><option value="<%= i.id %>" <% if (i.id === values.instructor_id) { %>selected<% } %>><%= fullName(i) %></option><% }) %>
+        </select>
+      </label>
+      <label>Capacity <input type="number" name="capacity" min="1" value="<%= values.capacity || '' %>" placeholder="No limit"></label>
+    </div>
+    <% } %>
+    <button type="submit" class="button">Save course</button>
+  </form>
+</section>
+
+<% if (admin) { %>
+<section class="card danger-zone">
+  <h2>Delete course</h2>
+  <p>Deleting removes the course and its enrollment history. This cannot be undone.</p>
+  <form method="post" action="/courses/<%= course.id %>/delete" data-confirm="Permanently delete <%= course.title %> and its enrollment history?">
+    <%- include('../partials/csrf') %>
+    <button class="button danger" type="submit">Delete course</button>
+  </form>
+</section>
+<% } %>
+<%- include('../partials/footer') %>
